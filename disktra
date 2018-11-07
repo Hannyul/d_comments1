@@ -1,0 +1,240 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dij_algorithm;
+
+/**
+ *
+ * @author Lenovo
+ */
+public class Dij_algorithm {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+
+        // Infinity variable equals 999.
+        int INF = 999;
+
+        // declare and initialize matrix
+        int Matrix[][] = {
+            {INF, 4, 3, INF, INF, INF},
+            {4, INF, 2, 13, 10, INF},
+            {3, 2, INF, 12, INF, INF},
+            {INF, 13, 12, INF, 5, 1},
+            {INF, 10, INF, 5, INF, 3},
+            {INF, INF, INF, 1, 3, INF}
+
+        };
+
+        // initillize the source
+        int source = 0;
+
+        // Call the Dijkstra method
+        Object[] output = Dijkstra(Matrix, INF, source);
+      
+        
+        // the position zero in the object array will contain paths
+        char[][] paths = (char[][]) output[0];
+        
+        // the position one in the object array will contain the distance
+        int[] distance = (int[]) output[1];
+
+        // print 
+        print(Matrix, distance, paths, source);
+
+    } // main 
+
+    
+    public static Object[] Dijkstra(int[][] Matrix, int INF, int source) {
+
+        /*
+         Dijkstra’s Algorithm
+        
+        
+         - Description:
+         Dijkstra algorithm is from the Greedy algorithms that obtain the
+         best local solution, and it provide the single-source shortest path
+         to all destinations.
+        
+         - Parameters:
+         the matrix (Graph) , the infinity variable (not accessable directly),and the source
+       
+         - Output:
+        
+        
+         */
+        
+        
+        // array to store the distance 
+        int[] distance = new int[Matrix.length];
+        
+        // first store the distance in source position and it's neighbors  
+        distance = Matrix[source];
+        distance[source] = 0;
+
+        // just array for the whole letters
+        char[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+
+        // array for letters with the range of the original matrix
+        char[] letters = new char[Matrix.length];
+        
+        // initilize letter array
+        for (int i = 0; i < Matrix.length; i++) {
+            letters[i] = alphabet[i];
+        }
+        
+        
+        // initillize the min and nextnode variables
+        int min = 0;
+        int nextnode = 0;
+
+        // array to indicate weather the vertex is visited or not
+        int[] visited = new int[Matrix.length];
+        
+        // in the Disktra we store the previous node we came with, so we store it here(previous Array)
+        int[] preD = new int[Matrix.length];
+
+        // source is visited 
+        visited[source] = 1;
+        
+        
+        
+        for (int i = 0; i < Matrix.length; i++) {
+
+            // we update the minimum each iteration
+            min = INF;
+            
+            // iterate over ith row
+            for (int j = 0; j < Matrix.length; j++) {
+
+                // check if there's a short path, but it's not visited 
+                if (min > distance[j] && visited[j] != 1) {
+                    // swap the min with minimum value we've found, and make the nextnode is = j 
+                    min = distance[j];
+                    nextnode = j;
+                    
+                } // if-stmnt
+
+            }// end of the second for 
+
+            // make the nextnode visited 
+            visited[nextnode] = 1;
+            // iterate over jth column
+            for (int k = 0; k < Matrix.length; k++) {
+
+                if (visited[k] != 1) {
+
+                    // min : has the minimum cost 
+                    // so we add it to the new way to see if that way is minimum than the original cost 
+                    // so we collect the information of that node (the previous node of it, and change the distance)
+                    if (min + Matrix[nextnode][k] < distance[k]) {
+                        distance[k] = min + Matrix[nextnode][k];
+                        preD[k] = nextnode;
+
+                    }
+
+                }// if not visited 
+                
+            } // for
+
+        } // Main for
+
+     
+        // make the path in letters[6][6]
+        char[][] paths = new char[Matrix.length][Matrix[0].length];
+        
+        // initial value for the path char 
+        for (int k = 0; k < Matrix.length; k++) {
+            for (int l = 0; l < Matrix[k].length; l++) {
+                paths[k][l] = 'X';
+            }
+        }
+
+        // just intial the source (A)
+        int dest = paths.length - 1;
+        paths[source][dest] = letters[source];
+
+        
+        for (int i = 1; i < Matrix.length; i++) {
+
+           // we will start from a
+            paths[i][source] = letters[source];
+            // destinitation letter
+            paths[i][dest] = letters[i];
+            
+            int j;
+
+            // just intial value, according to which iteration we are in   
+            j = i;
+
+            do {
+
+                j = preD[j];
+
+                // int columns = Matrix.length - 2: 
+                // we subtract 2 because 2 spots are reserved 
+                // for the source and destination letters
+                for (int columns = Matrix.length - 2; columns > 0; columns--) {
+                    // make sure that letter we are in != the letter for the source 
+                    // to avoid duplicate the source 
+                    if (paths[i][columns] == 'X' && letters[j] != letters[source]) {
+                        // instead of x put the letter value
+                        paths[i][columns] = letters[j];
+                        // break 
+                        break;
+                    }
+                }
+
+            } while (j != 0);
+
+        }
+
+        System.out.println();
+
+        return new Object[]{paths, distance};
+
+    }// Disjktra method 
+    
+    // ********************************************
+
+    public static void print(int Matrix[][], int[] distance, char[][] paths, int source) {
+
+        char sourceNode = paths[source][paths[source].length - 1];
+        // iterate over rows
+        for (int i = 0; i < Matrix.length; i++) {
+
+            char destination = paths[i][paths[i].length - 1];
+
+            System.out.print("The shortest path from " + sourceNode + " to " + destination + ":   ");
+
+            if (i == source) {
+                System.out.print("NULL\n");
+
+            } else {
+                // iterate over columns
+                for (int j = 0; j < paths.length; j++) {
+                    if (paths[i][j] != 'X') {
+                        if (j == paths.length - 1) {
+                            System.out.print(paths[i][j]);
+                        } else {
+                            System.out.print(paths[i][j] + "->");
+                        }
+                    }
+                }
+
+                System.out.print("\nwith the cost of " + distance[i] + "\n");
+
+            }
+            System.out.println("");
+        }
+
+        System.out.println();
+    } // print method 
+    
+    // ****************************************8
+
+}// class
